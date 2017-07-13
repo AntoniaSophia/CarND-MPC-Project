@@ -90,6 +90,7 @@ int main() {
           double px = j[1]["x"];
           double py = j[1]["y"];
           double psi = j[1]["psi"];
+          double psiunity = j[1]["psi_unity"];
           double v = j[1]["speed"];
 
           /*
@@ -98,8 +99,51 @@ int main() {
           * Both are in between [-1, 1].
           *
           */
+          Eigen::VectorXd ptsx_vector(ptsx.size());
+          Eigen::VectorXd ptsy_vector(ptsy.size());
+
+
+          for (unsigned int i = 0; i < ptsx.size(); i++) {
+            
+            double x_rotate = (ptsx[i]-px) * cos(-psi) - (ptsy[i]-py) * sin(-psi);
+            double y_rotate = (ptsx[i]-px) * sin(-psi) + (ptsy[i]-py) * cos(-psi);
+            ptsx_vector(i) = x_rotate;
+            ptsy_vector(i) = y_rotate;
+
+            std::cout << "x_rotate = " << x_rotate << " | y_rotate " << y_rotate << std::endl;
+          }
+
+          auto coeffs = polyfit(ptsx_vector, ptsy_vector, 3);
+
+          // calculate the cross track error
+           double cte = polyeval(coeffs, 0) - 0;
+          // double cte = polyeval(coeffs, px) - py; ;
+          // calculate the orientation error
+          double epsi = 0 - atan(coeffs[1]);
+
+          for (int i=0;i<coeffs.size();i++) {
+            std::cout << "Coeff " << i << ": " <<coeffs[i] << std::endl;
+          }
+          std::cout << "f(" << px << ") = " << polyeval(coeffs, px) << std::endl;
+          std::cout << "cte = " << cte << std::endl;
+          std::cout << "epsi(deg) = " << rad2deg(epsi) << std::endl;
+          std::cout << "psi(deg) = " << rad2deg(psi) << std::endl;
+          std::cout << "psi_unity(deg) = " << rad2deg(psiunity) << std::endl;
+          
+
+          Eigen::VectorXd state(6);
+          state << 0, 0, 0, v, cte, epsi;  // we have rotated+translated before!!
+
+          auto vars = mpc.Solve(state, coeffs);
+          
           double steer_value;
           double throttle_value;
+
+
+          steer_value = vars[0];
+          throttle_value = vars[1];
+          
+          steer_value = steer_value / deg2rad(25);
 
           json msgJson;
           // NOTE: Remember to divide by deg2rad(25) before you send the steering value back.
@@ -114,8 +158,14 @@ int main() {
           //.. add (x,y) points to list here, points are in reference to the vehicle's coordinate system
           // the points in the simulator are connected by a Green line
 
-          msgJson["mpc_x"] = mpc_x_vals;
-          msgJson["mpc_y"] = mpc_y_vals;
+ for (int i = 2; i < vars.size(); i ++) {
+            if (i%2 == 0) {
+              mpc_x_vals.push_back(vars[i]);
+            }
+            else {
+              mpc_y_vals.push_back(vars[i]);
+            }
+}
 
           //Display the waypoints/reference line
           vector<double> next_x_vals;
@@ -123,6 +173,22 @@ int main() {
 
           //.. add (x,y) points to list here, points are in reference to the vehicle's coordinate system
           // the points in the simulator are connected by a Yellow line
+          for (unsigned int i = 0; i < ptsx.size(); i++) {
+            double x_rotate = (ptsx[i]-px) * cos(psiunity) - (ptsy[i]-py) * sin(psiunity);
+            double y_rotate = (ptsx[i]-px) * sin(psiunity) + (ptsy[i]-py) * cos(psiunity);
+          //  next_x_vals.push_back(y_rotate);
+          //  next_y_vals.push_back(-x_rotate);
+          }
+
+          for (double i = 0; i < 100; i += 3){
+            next_x_vals.push_back(i);
+            next_y_vals.push_back(polyeval(coeffs, i));
+          }
+
+          msgJson["mpc_x"] = mpc_x_vals;
+          msgJson["mpc_y"] = mpc_y_vals;
+
+          //msgJson["throttle"] = 0.3;
 
           msgJson["next_x"] = next_x_vals;
           msgJson["next_y"] = next_y_vals;
@@ -130,6 +196,7 @@ int main() {
 
           auto msg = "42[\"steer\"," + msgJson.dump() + "]";
           std::cout << msg << std::endl;
+        
           // Latency
           // The purpose is to mimic real driving conditions where
           // the car does actuate the commands instantly.

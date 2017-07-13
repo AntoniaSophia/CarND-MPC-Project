@@ -77,7 +77,7 @@ int main() {
     // The 4 signifies a websocket message
     // The 2 signifies a websocket event
     string sdata = string(data).substr(0, length);
-    cout << sdata << endl;
+    //cout << sdata << endl;
     if (sdata.size() > 2 && sdata[0] == '4' && sdata[1] == '2') {
       string s = hasData(sdata);
       if (s != "") {
@@ -110,7 +110,7 @@ int main() {
             ptsx_vector(i) = x_rotate;
             ptsy_vector(i) = y_rotate;
 
-            std::cout << "x_rotate = " << x_rotate << " | y_rotate " << y_rotate << std::endl;
+            //std::cout << "x_rotate = " << x_rotate << " | y_rotate " << y_rotate << std::endl;
           }
 
           auto coeffs = polyfit(ptsx_vector, ptsy_vector, 3);
@@ -122,13 +122,13 @@ int main() {
           double epsi = 0 - atan(coeffs[1]);
 
           for (int i=0;i<coeffs.size();i++) {
-            std::cout << "Coeff " << i << ": " <<coeffs[i] << std::endl;
+            // std::cout << "Coeff " << i << ": " <<coeffs[i] << std::endl;
           }
-          std::cout << "f(" << px << ") = " << polyeval(coeffs, px) << std::endl;
-          std::cout << "cte = " << cte << std::endl;
-          std::cout << "epsi(deg) = " << rad2deg(epsi) << std::endl;
-          std::cout << "psi(deg) = " << rad2deg(psi) << std::endl;
-          std::cout << "psi_unity(deg) = " << rad2deg(psiunity) << std::endl;
+          // std::cout << "f(" << px << ") = " << polyeval(coeffs, px) << std::endl;
+          // std::cout << "cte = " << cte << std::endl;
+          // std::cout << "epsi(deg) = " << rad2deg(epsi) << std::endl;
+          // std::cout << "psi(deg) = " << rad2deg(psi) << std::endl;
+          // std::cout << "psi_unity(deg) = " << rad2deg(psiunity) << std::endl;
           
 
           Eigen::VectorXd state(6);
@@ -158,14 +158,14 @@ int main() {
           //.. add (x,y) points to list here, points are in reference to the vehicle's coordinate system
           // the points in the simulator are connected by a Green line
 
- for (int i = 2; i < vars.size(); i ++) {
+          for (int i = 2; i < vars.size(); i ++) {
             if (i%2 == 0) {
               mpc_x_vals.push_back(vars[i]);
             }
             else {
               mpc_y_vals.push_back(vars[i]);
             }
-}
+          }
 
           //Display the waypoints/reference line
           vector<double> next_x_vals;
@@ -195,7 +195,7 @@ int main() {
 
 
           auto msg = "42[\"steer\"," + msgJson.dump() + "]";
-          std::cout << msg << std::endl;
+          //std::cout << msg << std::endl;
         
           // Latency
           // The purpose is to mimic real driving conditions where

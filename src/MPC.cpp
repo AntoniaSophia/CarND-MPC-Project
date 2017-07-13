@@ -136,12 +136,6 @@ public:
       AD<double> delta0 = vars[delta_start + t - 1];
       AD<double> a0 = vars[a_start + t - 1];
 
-      // TODO !!!!!!
-       if (t > 1) {   // use previous actuations (to account for latency)
-        a0 = vars[a_start + t - 2];
-        delta0 = vars[delta_start + t - 2];
-      }
-
       //AD<double> f0 = coeffs[0] + coeffs[1] * x0;
       //AD<double> psides0 = CppAD::atan(coeffs[1]);
 

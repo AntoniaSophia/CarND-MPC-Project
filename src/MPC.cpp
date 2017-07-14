@@ -85,11 +85,11 @@ class FG_eval {
 
     // Minimize the value gap between sequential actuations.
     for (unsigned int t = 0; t < N - 2; t++) {
-      // fg[0] += CppAD::pow(vars[delta_start + t + 1] - vars[delta_start + t],
-      // 2);
-      // tune the steer cangle
+      // tune the steer angle --> punish heavy steering
       fg[0] += 1000 *
                CppAD::pow(vars[delta_start + t + 1] - vars[delta_start + t], 2);
+
+      // punish steering + acceleration at same time
       fg[0] += 1000*CppAD::pow((vars[delta_start + t]-vars[delta_start + t+1])*
                                (vars[a_start + t + 1]-vars[a_start+t]), 2);
     }

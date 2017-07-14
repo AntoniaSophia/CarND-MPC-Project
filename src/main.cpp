@@ -77,7 +77,7 @@ int main() {
     // The 4 signifies a websocket message
     // The 2 signifies a websocket event
     string sdata = string(data).substr(0, length);
-    cout << sdata << endl;
+    // cout << sdata << endl;
     if (sdata.size() > 2 && sdata[0] == '4' && sdata[1] == '2') {
       string s = hasData(sdata);
       if (s != "") {
@@ -92,6 +92,9 @@ int main() {
           double psi = j[1]["psi"];
           double psiunity = j[1]["psi_unity"];
           double v = j[1]["speed"];
+          double a = j[1]["throttle"];
+          double delta = j[1]["steering_angle"];
+
 
           /*
           * TODO: Calculate steering angle and throttle using MPC.
@@ -141,11 +144,30 @@ int main() {
           std::cout << "psi_unity(deg) = " << rad2deg(psiunity) << std::endl;
           *****/
 
+          Eigen::VectorXd state(6);
+
+          //***********************************************
+          // Latency for predicting time at actuation
+          double dt = 0.10;  // latency is 100ms - see main.cpp line 236
+          double Lf = 2.67;
+
+          // Predict state considering a latency of dt
+          // Keep in mind: we have rotated+translated before!
+          // --> so x, y and psi are zero!!
+          double pred_px = 0 + v * dt;
+          double pred_psi = 0 - v * delta / Lf * dt;
+          double pred_py = 0 + cos(pred_psi)*dt;
+          double pred_v = v + a * dt;
+          double pred_cte = cte - v * sin(epsi) * dt;
+          double pred_epsi = epsi - v * delta / Lf * dt;
+
+          state << pred_px, pred_py, pred_psi, pred_v, pred_cte, pred_epsi;
+          //***********************************************
+
+          // using this line instead of above means ignoring latency
+          state << 0, 0, 0, v, cte, epsi;
 
           // now start the solver!!
-          Eigen::VectorXd state(6);
-          state << 0, 0, 0, v, cte, epsi;  // we have rotated+translated before!
-
           auto vars = mpc.Solve(state, coeffs);
           double steer_value;
           double throttle_value;

@@ -7,7 +7,7 @@
 using CppAD::AD;
 
 // Set the timestep length and duration
-size_t N = 10;
+size_t N = 8;
 double dt = 0.1;
 
 
@@ -20,14 +20,13 @@ double dt = 0.1;
 // Lf was tuned until the the radius formed by the simulating the model
 // presented in the classroom matched the previous radius.
 //
+// This is the length from front to CoG (Center of Gravity)
+// that has a similar radius.
+const double Lf = 2.67;
 
 // NOTE: feel free to play around with this
 // or do something completely different
-double ref_v = 70;
-
-// This is the length from front to CoG (Center of Gravity) 
-// that has a similar radius.
-const double Lf = 2.67;
+double ref_v = 120;
 
 // The solver takes all the state variables and actuator
 // variables in a singular vector. Thus, we should to establish
@@ -89,9 +88,10 @@ class FG_eval {
       // fg[0] += CppAD::pow(vars[delta_start + t + 1] - vars[delta_start + t],
       // 2);
       // tune the steer cangle
-      fg[0] += 500 *
+      fg[0] += 1000 *
                CppAD::pow(vars[delta_start + t + 1] - vars[delta_start + t], 2);
-      fg[0] += 500*CppAD::pow(vars[a_start + t + 1] - vars[a_start + t], 2);
+      fg[0] += 1000*CppAD::pow((vars[delta_start + t]-vars[delta_start + t+1])*
+                               (vars[a_start + t + 1]-vars[a_start+t]), 2);
     }
 
     //

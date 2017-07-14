@@ -145,7 +145,7 @@ class FG_eval {
       // Here's `x` to get you started.
       // The idea here is to constraint this value to be 0.
       //
-      // Recall the equations for the model:
+      // Recall the equations for the model (see Udacity lesson 18/19 of term2)
       // x_[t] = x[t-1] + v[t-1] * cos(psi[t-1]) * dt
       // y_[t] = y[t-1] + v[t-1] * sin(psi[t-1]) * dt
       // psi_[t] = psi[t-1] + v[t-1] / Lf * delta[t-1] * dt
@@ -154,12 +154,12 @@ class FG_eval {
       // epsi[t] = psi[t] - psides[t-1] + v[t-1] * delta[t-1] / Lf * dt
       fg[1 + x_start + t] = x1 - (x0 + v0 * CppAD::cos(psi0) * dt);
       fg[1 + y_start + t] = y1 - (y0 + v0 * CppAD::sin(psi0) * dt);
-      fg[1 + psi_start + t] = psi1 - (psi0 - v0 * delta0 / Lf * dt);  // modified see Udacity comment
+      fg[1 + psi_start + t] = psi1 - (psi0 + v0 * delta0 / Lf * dt);
       fg[1 + v_start + t] = v1 - (v0 + a0 * dt);
       fg[1 + cte_start + t] =
           cte1 - ((f0 - y0) + (v0 * CppAD::sin(epsi0) * dt));
       fg[1 + epsi_start + t] =
-          epsi1 - ((psi0 - psides0) - v0 * delta0 / Lf * dt);  // modified see Udacity comment
+          epsi1 - ((psi0 - psides0) + v0 * delta0 / Lf * dt);
     }
   }
 };

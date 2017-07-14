@@ -145,7 +145,10 @@ int main() {
           // NOTE: Remember to divide by deg2rad(25) before you send the
           // steering value back. Otherwise the values will be in between
           // [-deg2rad(25), deg2rad(25] instead of [-1, 1].
-          steer_value = steer_value / deg2rad(25);
+          // NOTE: multiply with -1 because of Udacity hint in the project
+          // reason is that the Udacity simulator calculates the angle delta in
+          // different left/right orientation
+          steer_value = steer_value / deg2rad(25) * (-1);
 
           json msgJson;
           msgJson["steering_angle"] = steer_value;

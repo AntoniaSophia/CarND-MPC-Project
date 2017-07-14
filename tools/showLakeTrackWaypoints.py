@@ -3,10 +3,10 @@ import csv
 import math
 
 def func(x):
-  a = -23.5413
-  b = -31.5284
-  c = -3.89747
-  d = -0.17953
+  a = 0.744287
+  b = 0.00214534
+  c = 0.00135139
+  d = -9.85153e-07
 
   return a + b*x + c*x*x + d*x*x*x
 
@@ -24,7 +24,7 @@ with open('../lake_track_waypoints.csv') as csvfile:
       yValue = float(row[1].replace(';', ''))
       plt.plot(xValue, yValue, 'ro')
 
-      psi = 4.12
+      psi = -3.73
 
       xValue_rotate = (xValue-posx) * math.cos(psi) - (yValue-posy) * math.sin(psi) 
       yValue_rotate = (xValue-posx) * math.sin(psi) + (yValue-posy) * math.cos(psi)

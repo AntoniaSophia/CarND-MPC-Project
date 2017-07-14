@@ -77,7 +77,7 @@ int main() {
     // The 4 signifies a websocket message
     // The 2 signifies a websocket event
     string sdata = string(data).substr(0, length);
-    // cout << sdata << endl;
+    cout << sdata << endl;
     if (sdata.size() > 2 && sdata[0] == '4' && sdata[1] == '2') {
       string s = hasData(sdata);
       if (s != "") {
@@ -102,7 +102,10 @@ int main() {
           Eigen::VectorXd ptsx_vector(ptsx.size());
           Eigen::VectorXd ptsy_vector(ptsy.size());
 
-
+          // convert the waypoints to the vehicle's coordinate system
+          // 1) rotation by angle psi
+          // 2) translation in x and y direction by current vehicle position
+          //    px and py
           for (unsigned int i = 0; i < ptsx.size(); i++) {
             double x_rot = (ptsx[i]-px) * cos(-psi) - (ptsy[i]-py) * sin(-psi);
             double y_rot = (ptsx[i]-px) * sin(-psi) + (ptsy[i]-py) * cos(-psi);
@@ -113,24 +116,33 @@ int main() {
             // << y_rot << std::endl;
           }
 
+          // now calculate the polynom of third order which fits
+          // best to waypoints (in vehicle's coordinate system)
           auto coeffs = polyfit(ptsx_vector, ptsy_vector, 3);
 
           // calculate the cross track error
-           double cte = polyeval(coeffs, 0) - 0;
-          // double cte = polyeval(coeffs, px) - py; ;
+          // simplified formula because we are in vehicel's coordinate system!!
+          double cte = polyeval(coeffs, 0) - 0;
+
           // calculate the orientation error
+          // simplified formula because we are in vehicel's coordinate system!!
           double epsi = 0 - atan(coeffs[1]);
 
+          /*****
           for (int i=0; i < coeffs.size(); i++) {
-            // std::cout << "Coeff " << i << ": " <<coeffs[i] << std::endl;
+            std::cout << "Coeff " << i << ": " <<coeffs[i] << std::endl;
           }
-          // std::cout << "f(" << px << ") = "
-          //           << polyeval(coeffs, px) << std::endl;
-          // std::cout << "cte = " << cte << std::endl;
-          // std::cout << "epsi(deg) = " << rad2deg(epsi) << std::endl;
-          // std::cout << "psi(deg) = " << rad2deg(psi) << std::endl;
-          // std::cout << "psi_unity(deg) = " << rad2deg(psiunity) << std::endl;
+          
+          std::cout << "f(" << px << ") = "
+                    << polyeval(coeffs, px) << std::endl;
+          std::cout << "cte = " << cte << std::endl;
+          std::cout << "epsi(deg) = " << rad2deg(epsi) << std::endl;
+          std::cout << "psi(deg) = " << rad2deg(psi) << std::endl;
+          std::cout << "psi_unity(deg) = " << rad2deg(psiunity) << std::endl;
+          *****/
 
+
+          // now start the solver!!
           Eigen::VectorXd state(6);
           state << 0, 0, 0, v, cte, epsi;  // we have rotated+translated before!
 

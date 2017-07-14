@@ -77,7 +77,7 @@ int main() {
     // The 4 signifies a websocket message
     // The 2 signifies a websocket event
     string sdata = string(data).substr(0, length);
-    //cout << sdata << endl;
+    // cout << sdata << endl;
     if (sdata.size() > 2 && sdata[0] == '4' && sdata[1] == '2') {
       string s = hasData(sdata);
       if (s != "") {
@@ -104,13 +104,13 @@ int main() {
 
 
           for (unsigned int i = 0; i < ptsx.size(); i++) {
-            
-            double x_rotate = (ptsx[i]-px) * cos(-psi) - (ptsy[i]-py) * sin(-psi);
-            double y_rotate = (ptsx[i]-px) * sin(-psi) + (ptsy[i]-py) * cos(-psi);
-            ptsx_vector(i) = x_rotate;
-            ptsy_vector(i) = y_rotate;
+            double x_rot = (ptsx[i]-px) * cos(-psi) - (ptsy[i]-py) * sin(-psi);
+            double y_rot = (ptsx[i]-px) * sin(-psi) + (ptsy[i]-py) * cos(-psi);
+            ptsx_vector(i) = x_rot;
+            ptsy_vector(i) = y_rot;
 
-            //std::cout << "x_rotate = " << x_rotate << " | y_rotate " << y_rotate << std::endl;
+            // std::cout << "x_rotate = " << x_rot << " | y_rotate "
+            // << y_rot << std::endl;
           }
 
           auto coeffs = polyfit(ptsx_vector, ptsy_vector, 3);
@@ -121,66 +121,61 @@ int main() {
           // calculate the orientation error
           double epsi = 0 - atan(coeffs[1]);
 
-          for (int i=0;i<coeffs.size();i++) {
+          for (int i=0; i < coeffs.size(); i++) {
             // std::cout << "Coeff " << i << ": " <<coeffs[i] << std::endl;
           }
-          // std::cout << "f(" << px << ") = " << polyeval(coeffs, px) << std::endl;
+          // std::cout << "f(" << px << ") = "
+          //           << polyeval(coeffs, px) << std::endl;
           // std::cout << "cte = " << cte << std::endl;
           // std::cout << "epsi(deg) = " << rad2deg(epsi) << std::endl;
           // std::cout << "psi(deg) = " << rad2deg(psi) << std::endl;
           // std::cout << "psi_unity(deg) = " << rad2deg(psiunity) << std::endl;
-          
 
           Eigen::VectorXd state(6);
-          state << 0, 0, 0, v, cte, epsi;  // we have rotated+translated before!!
+          state << 0, 0, 0, v, cte, epsi;  // we have rotated+translated before!
 
           auto vars = mpc.Solve(state, coeffs);
-          
           double steer_value;
           double throttle_value;
 
 
           steer_value = vars[0];
           throttle_value = vars[1];
-          
+
+          // NOTE: Remember to divide by deg2rad(25) before you send the
+          // steering value back. Otherwise the values will be in between
+          // [-deg2rad(25), deg2rad(25] instead of [-1, 1].
           steer_value = steer_value / deg2rad(25);
 
           json msgJson;
-          // NOTE: Remember to divide by deg2rad(25) before you send the steering value back.
-          // Otherwise the values will be in between [-deg2rad(25), deg2rad(25] instead of [-1, 1].
           msgJson["steering_angle"] = steer_value;
           msgJson["throttle"] = throttle_value;
 
-          //Display the MPC predicted trajectory 
+          // Display the MPC predicted trajectory
           vector<double> mpc_x_vals;
           vector<double> mpc_y_vals;
 
-          //.. add (x,y) points to list here, points are in reference to the vehicle's coordinate system
+          // .. add (x,y) points to list here, keep in mind:
+          // points are in reference to the vehicle's coordinate system
           // the points in the simulator are connected by a Green line
 
-          for (int i = 2; i < vars.size(); i ++) {
+          // Refactor in order to make it more readable!!
+          for (unsigned int i = 2; i < vars.size(); i ++) {
             if (i%2 == 0) {
               mpc_x_vals.push_back(vars[i]);
-            }
-            else {
+            } else {
               mpc_y_vals.push_back(vars[i]);
             }
           }
 
-          //Display the waypoints/reference line
+          // Display the waypoints/reference line
           vector<double> next_x_vals;
           vector<double> next_y_vals;
 
-          //.. add (x,y) points to list here, points are in reference to the vehicle's coordinate system
+          //.. add (x,y) points to list here, keep in mind:
+          // points are in reference to the vehicle's coordinate system
           // the points in the simulator are connected by a Yellow line
-          for (unsigned int i = 0; i < ptsx.size(); i++) {
-            double x_rotate = (ptsx[i]-px) * cos(psiunity) - (ptsy[i]-py) * sin(psiunity);
-            double y_rotate = (ptsx[i]-px) * sin(psiunity) + (ptsy[i]-py) * cos(psiunity);
-          //  next_x_vals.push_back(y_rotate);
-          //  next_y_vals.push_back(-x_rotate);
-          }
-
-          for (double i = 0; i < 100; i += 3){
+          for (double i = 0; i < 100; i += 5) {
             next_x_vals.push_back(i);
             next_y_vals.push_back(polyeval(coeffs, i));
           }
@@ -188,15 +183,13 @@ int main() {
           msgJson["mpc_x"] = mpc_x_vals;
           msgJson["mpc_y"] = mpc_y_vals;
 
-          //msgJson["throttle"] = 0.3;
-
           msgJson["next_x"] = next_x_vals;
           msgJson["next_y"] = next_y_vals;
 
 
           auto msg = "42[\"steer\"," + msgJson.dump() + "]";
-          //std::cout << msg << std::endl;
-        
+          // std::cout << msg << std::endl;
+
           // Latency
           // The purpose is to mimic real driving conditions where
           // the car does actuate the commands instantly.

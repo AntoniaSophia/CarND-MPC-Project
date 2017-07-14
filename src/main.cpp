@@ -165,7 +165,7 @@ int main() {
           //***********************************************
 
           // using this line instead of above means ignoring latency
-          state << 0, 0, 0, v, cte, epsi;
+          // state << 0, 0, 0, v, cte, epsi;
 
           // now start the solver!!
           auto vars = mpc.Solve(state, coeffs);

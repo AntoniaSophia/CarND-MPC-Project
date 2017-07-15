@@ -151,14 +151,14 @@ int main() {
           double dt = 0.10;  // latency is 100ms - see main.cpp line 236
           double Lf = 2.67;
 
-          // Predict state considering a pred_psilatency of dt
+          // Predict state considering a latency of dt
           // Keep in mind: we have rotated+translated before!
           // --> so x, y and psi are zero!!
-          double pred_px = 0 + v * cos(0) * dt;
-          double pred_psi = 0 - v * delta / Lf * dt;
-          double pred_py = 0 + v * sin(0)*dt;
-          double pred_v = v + a * dt;
-          double pred_cte = cte - v * sin(epsi) * dt;
+          double pred_px   = 0 + v * cos(0) * dt;
+          double pred_py   = 0 + v * sin(0) * dt;
+          double pred_psi  = 0 - v * delta / Lf * dt;
+          double pred_v    = v + a * dt;
+          double pred_cte  = cte - v * sin(epsi) * dt;
           double pred_epsi = epsi - v * delta / Lf * dt;
 
           state << pred_px, pred_py, pred_psi, pred_v, pred_cte, pred_epsi;

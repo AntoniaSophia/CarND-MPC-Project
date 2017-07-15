@@ -16,7 +16,8 @@ Here I will consider the [rubric points](https://review.udacity.com/#!/rubrics/8
 
 ###Student describes their model in detail. This includes the state, actuators and update equations.
 
-A just used the vehicle model equations described in the Udacity classroom and derived in lesson 18 (Vehicle Models)
+I just used the vehicle model equations described in the Udacity classroom and derived in lesson 18 (Vehicle Models)
+
 ![Model Equations][image0]
 
 You can see the use of those equations in MPC.cpp lines 145-162 and main.cpp lines 149-165 (here the latency prediction is carried out). 

@@ -7,8 +7,8 @@ The goals / steps of this project are the following:
 
 [//]: # (Image References)
 
-[image0]: ./../tools/Predictive_Model_Equations.png "model_equations.png"
-[image1]: ./../tools/initial_position.png "waypoint_rotation.png"
+[image0]: ./../master/tools/Predictive_Model_Equations.png "model_equations.png"
+[image1]: ./../master/tools/initial_position.png "waypoint_rotation.png"
 
 ## Rubric Points
 Here I will consider the [rubric points](https://review.udacity.com/#!/rubrics/896/view) individually and describe how I addressed each point in my implementation.  
